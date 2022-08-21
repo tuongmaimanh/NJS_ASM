@@ -1,0 +1,62 @@
+<%- include('../includes/header') %>
+<div class="row">
+  <% for(let timeKeepingInDay of timeKeeping){
+    var date1 = new Date(timeKeepingInDay.date);
+    var date2 = new Date(dayLeaveWithHour.date)
+     if(date1.getTime() === date2.getTime()){
+      var totalWorkInDay = parseInt(dayLeaveWithHour.hours);
+       var leaveHour = parseInt(dayLeaveWithHour.hours)
+    }else{
+      var totalWorkInDay = 0;
+      var leaveHour = 0
+
+    } %> 
+
+  <article class="card">
+    <header class="card-header">
+      <h1 class="card-title">
+        Date: <%= timeKeepingInDay.date.toLocaleDateString() %>
+        <h5 class="text-danger">Leave Hours: <%= leaveHour  %> </h5>
+      </h1>
+    </header>
+
+    <div class="card-text">
+      <% var i = 1 %> <% for(let shift of timeKeepingInDay.detail){ 
+          var checkIn = shift.checkIn;
+          var checkOut = shift.checkOut
+        var totalWorkInCase = 0; 
+        if(checkIn.getTime() === checkOut.getTime()){
+          totalWorkInCase =0
+        }else{
+        totalWorkInCase +=
+        ((checkOut.getHours()+checkOut.getMinutes()/60) -
+        (checkIn.getHours()+checkIn.getMinutes()/60)); 
+        }
+        totalWorkInDay += totalWorkInCase %>
+
+      <p>Case: <%= i %></p>
+      <p><% i++ %></p>
+      <p>Check In: <%= checkIn.toLocaleString() %></p>
+      <% if(checkOut.getTime() === checkIn.getTime()){ %>
+      <p>Check Out: <b>--:--</b></p>
+      <%}else{%>
+      <p>Check Out: <%= checkOut.toLocaleString() %></p>
+      <% } %>
+      <p>Work Place: <%= shift.workplace %></p>
+      <h6>Total in case: <%= totalWorkInCase.toFixed(1) %>h</h6>
+      <hr />
+      <% } %> 
+      
+      <% if(totalWorkInDay >= 9){ %>
+      <h5>Total in day: 8h</h5>
+      <h5>Over Time: <%= (totalWorkInDay - 9).toFixed(1) %>h</h5>
+
+      <% }else{ %>
+      <h5>Total in day: <%= totalWorkInDay.toFixed(1)%>h</h5>
+      <% } %>
+    </div>
+  </article>
+  <% } %>
+</div>
+
+<%- include('../includes/footer') %>

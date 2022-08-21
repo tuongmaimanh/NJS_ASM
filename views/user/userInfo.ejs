@@ -1,0 +1,17 @@
+ <%- include('../includes/header')  %> 
+<div class="card " style="width: 18rem;">
+    <img src="<%= user.imageUrl  %> " class="card-img-top" alt="...">
+    <div class="card-body">
+      <h5 class="card-title"><%= user.name  %> </h5>
+      <p class="card-text">Date of birth: <%= user.doB.toLocaleDateString() %> </p>
+      <p class="card-text">Salary scale: <%= user.salaryScale  %> </p>
+      <p class="card-text">Start day: <%= user.startDate.toLocaleDateString()  %> </p>
+      <p class="card-text">Department: <%= user.department  %> </p>
+      <p class="card-text">Annual leave: <%= user.annualLeave  %> day</p>
+      <form action="userInfo" method="POST">
+          <input name="imageUrl" class="card-text" value="<%= user.imageUrl  %> "/>
+          <button  class="btn btn-primary" type="submit">Edit ImageUrl</button>
+      </form>
+    </div>
+  </div> 
+  <%- include('../includes/footer')  %> 
