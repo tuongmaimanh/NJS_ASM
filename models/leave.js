@@ -11,7 +11,7 @@ const leaveSchema = new Schema({
          type : Array,
     },
     hourLeave:{
-        date: Date,
+       date: {type: Date,default: new Date(0)},
         hours: Number
     },
     reason:{

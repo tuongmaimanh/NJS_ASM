@@ -14,5 +14,7 @@ router.get('/userInfo',userController.getUserInfo)
 router.post('/userInfo',userController.postUserInfo)
 
 router.get('/searching',userController.getSearching)
+router.post('/find-salary',userController.postFindSalary)
+
 
 module.exports = router

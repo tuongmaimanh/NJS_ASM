@@ -2,6 +2,8 @@ const { type } = require("jquery");
 const TimeKeeping = require("../models/timeKeeping");
 const User = require("../models/user");
 const Leave = require("../models/leave");
+const timeKeeping = require("../models/timeKeeping");
+const { ObjectId } = require("mongodb");
 
 exports.getIndex = (req, res, next) => {
   res.render("user/index", { path: "/" });
@@ -24,14 +26,14 @@ exports.getCheckIn = (req, res, next) => {
             checkOut: new Date(0),
             workplace: "Company",
           };
-          
+
           const detail = timeKeepingInday[0].detail;
           detail.push(newShift);
           timeKeepingInday[0].save();
         } else {
           //if false mean user had no checked in day and now create new detail(timeKeepingInDay)
           console.log("ko tim thay");
-          const date = new Date()
+          const date = new Date();
           const timeKeeping = new TimeKeeping({
             userId: req.user._id,
             date: new Date().toLocaleDateString(),
@@ -69,12 +71,13 @@ exports.getCheckOut = (req, res, next) => {
       date: new Date().toLocaleDateString(),
     })
       .then((timeKeepingInday) => {
-        console.log(timeKeepingInday)
+        console.log(timeKeepingInday);
         //get the last check time in day of index
         const nowShiftIndex = timeKeepingInday.detail.length - 1;
         //get the last check time in day
         const nowShift = timeKeepingInday.detail[nowShiftIndex];
         nowShift.checkOut = new Date();
+
         timeKeepingInday.save();
 
         //set isCheckout return 'true'
@@ -109,7 +112,7 @@ exports.getLeave = (req, res, next) => {
 };
 exports.postLeave = (req, res, next) => {
   //get day leave from body and caculate to number
-  
+
   let fromLeave = new Date(req.body.from_leave);
   const toLeave = new Date(req.body.to_leave);
   const hourLeave = parseInt(req.body.hours) / 8;
@@ -125,17 +128,21 @@ exports.postLeave = (req, res, next) => {
   //check day leave is smaller annualLeave
   if (totalTakeLeave <= req.user.annualLeave) {
     //get all day user will leave
-    const dayLeave = []
-    dayLeave.push(fromLeave)
-    while(fromLeave.getTime() < toLeave.getTime()){ //push into dayLeave 
-      var middleDayLeave =  new Date(fromLeave.getTime()+ 86400000)
-      dayLeave.push(middleDayLeave)
-      fromLeave = middleDayLeave
+    const dayLeave = [];
+    dayLeave.push(fromLeave);
+    while (fromLeave.getTime() < toLeave.getTime()) {
+      //push into dayLeave
+      var middleDayLeave = new Date(fromLeave.getTime() + 86400000);
+      dayLeave.push(middleDayLeave);
+      fromLeave = middleDayLeave;
     }
     //get hour leave and day
-   const hourLeave = { date: new Date(req.body.day_leave_hours).toLocaleDateString(), hours: req.body.hours}
-    
-   //create new leave record--
+    const hourLeave = {
+      date: new Date(req.body.day_leave_hours).toLocaleDateString(),
+      hours: req.body.hours,
+    };
+
+    //create new leave record--
     const leaveOfUser = new Leave({
       userId: req.user._id,
       dayLeave: dayLeave,
@@ -182,22 +189,23 @@ exports.postUserInfo = (req, res, next) => {
 };
 
 exports.getSearching = (req, res, next) => {
-  var dayLeaveWithHour = {}
-   
+  var dayLeaveWithHour = {};
+
   //find day leave
   Leave.findOne({ userId: req.user._id })
     .then((leave) => {
-      console.log('date',leave.hourLeave.hours == 4)
-      if (leave.hourLeave.hours > 0) { //leave day and hours 
-        dayLeaveWithHour.date= leave.hourLeave.date
-        dayLeaveWithHour.hours= parseInt(leave.hourLeave.hours)
+      console.log("date", leave.hourLeave.hours == 4);
+      if (leave.hourLeave.hours > 0) {
+        //leave day and hours
+        dayLeaveWithHour.date = leave.hourLeave.date;
+        dayLeaveWithHour.hours = parseInt(leave.hourLeave.hours);
       }
     })
     .catch((err) => console.log(err));
-    //find Time keeping and render
-    TimeKeeping.find({ userId: req.user._id })
+  //find Time keeping and render
+  TimeKeeping.find({ userId: req.user._id })
     .then((timeKeeping) => {
-      console.log('dWH',dayLeaveWithHour)
+      console.log("dWH", dayLeaveWithHour);
       res.render("user/searching", {
         timeKeeping: timeKeeping,
         dayLeaveWithHour: dayLeaveWithHour,
@@ -205,4 +213,105 @@ exports.getSearching = (req, res, next) => {
       });
     })
     .catch((err) => console.log(err));
+};
+
+exports.postFindSalary = (req, res, next) => {
+  // TimeKeeping.find({
+  //   created_on: {
+  //     $gte: new Date(2022, 8),
+  //     $lt: new Date(2022, 8),
+  //   },
+  // }).then((timeKeepingInday) => console.log("TKID::", timeKeepingInday));
+
+  //caculate salary in day
+  // var totalWorkInDay = 0
+  // for(let shift of timeKeepingInday.detail){
+  //   var checkIn = shift.checkIn;
+  //   var checkOut = shift.checkOut
+  // var totalWorkInCase = 0;
+  // if(checkIn.getTime() === checkOut.getTime()){
+  //   totalWorkInCase =0
+  // }else{
+  // totalWorkInCase +=
+  // ((checkOut.getHours()+checkOut.getMinutes()/60) -
+  // (checkIn.getHours()+checkIn.getMinutes()/60));
+  // }
+  // totalWorkInDay += totalWorkInCase
+
+  //get OT and set Total work in day =8
+  // var overTime = 0
+  // if(totalWorkInDay >= 9){
+  //    overTime = totalWorkInDay -9
+  //   totalWorkInDay = 8
+  // }
+
+  //get hours leave and caculate salary in day
+  // var salary = 0
+  // Leave.findOne({userId: req.user._id})
+  // .then(leave => {
+  // salary = req.user.salaryScale * 3000000 + overTime*200000
+  // console.log('salary',salary)
+
+
+  var dayLeaveWithHour = {};
+
+  //find day leave
+  Leave.findOne({ userId: req.user._id })
+    .then((leave) => {
+      console.log('L:',leave)
+      if (leave.hourLeave.hours > 0) {
+        //leave day and hours
+        dayLeaveWithHour.date = leave.hourLeave.date;
+        dayLeaveWithHour.hours = parseInt(leave.hourLeave.hours);
+      }
+    })
+    .catch((err) => console.log(err));
+
+
+  //get list time keeping in Month
+  var date = new Date(req.body.month);
+  console.log("month:", date);
+  var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+  var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  console.log(firstDay, lastDay);
+  TimeKeeping.find({ date: { $gte: firstDay, $lte: lastDay } })
+    .then((timeKeepingInMonth) => {
+      var totalWorkInMonth = 0;
+      var totalOverTimeInMonth = 0;
+      for (let inDay of timeKeepingInMonth) {
+        var totalWorkInDay = 0;
+        var totalOverTimeInDay = 0;
+        for (let shift of inDay.detail) {
+          var timeWorkInDay =
+            shift.checkOut.getHours() +
+            shift.checkOut.getMinutes() / 60 -
+            (shift.checkIn.getHours() + shift.checkIn.getMinutes() / 60);
+          
+            if ( Object.keys(dayLeaveWithHour).length !== 0 &&
+              dayLeaveWithHour.date.getTime() === inDay.date.getTime() &&
+              dayLeaveWithHour.hours > 0
+            ) {
+
+              //leave not empty and day leave == day and hours > 0
+              timeWorkInDay += dayLeaveWithHour.hours;
+            }
+
+            if (timeWorkInDay >= 8) {
+              totalWorkInDay += 8;
+              totalOverTimeInDay += timeWorkInDay - 8;
+            } else {
+              totalWorkInDay += timeWorkInDay;
+            }
+          ;
+        }
+        totalWorkInMonth += totalWorkInDay;
+        totalOverTimeInMonth += totalOverTimeInDay;
+        console.log("ttDay:", totalWorkInMonth);
+      }
+    })
+    .catch((err) => console.log(err));
+
+  // })
+  //   .then()
+  //   .catch(err => console.log(err))
 };

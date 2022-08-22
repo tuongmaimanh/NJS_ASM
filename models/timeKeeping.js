@@ -17,7 +17,7 @@ const timeKeepingSchema = new Schema({
             workplace: {type: String, required: true}
 
         }
-    ]
+    ],
     
 })
 
