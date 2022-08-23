@@ -5,7 +5,7 @@
     var date2 = new Date(dayLeaveWithHour.date)
      if(date1.getTime() === date2.getTime()){
       var totalWorkInDay = parseInt(dayLeaveWithHour.hours);
-       var leaveHour = parseInt(dayLeaveWithHour.hours)
+       var leaveHour = dayLeaveWithHour.hours
     }else{
       var totalWorkInDay = 0;
       var leaveHour = 0

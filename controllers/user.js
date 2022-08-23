@@ -194,11 +194,10 @@ exports.getSearching = (req, res, next) => {
   //find day leave
   Leave.findOne({ userId: req.user._id })
     .then((leave) => {
-      console.log("date", leave.hourLeave.hours == 4);
       if (leave.hourLeave.hours > 0) {
         //leave day and hours
         dayLeaveWithHour.date = leave.hourLeave.date;
-        dayLeaveWithHour.hours = parseInt(leave.hourLeave.hours);
+        dayLeaveWithHour.hours = leave.hourLeave.hours;
       }
     })
     .catch((err) => console.log(err));
@@ -216,60 +215,24 @@ exports.getSearching = (req, res, next) => {
 };
 
 exports.postFindSalary = (req, res, next) => {
-  // TimeKeeping.find({
-  //   created_on: {
-  //     $gte: new Date(2022, 8),
-  //     $lt: new Date(2022, 8),
-  //   },
-  // }).then((timeKeepingInday) => console.log("TKID::", timeKeepingInday));
+  
 
-  //caculate salary in day
-  // var totalWorkInDay = 0
-  // for(let shift of timeKeepingInday.detail){
-  //   var checkIn = shift.checkIn;
-  //   var checkOut = shift.checkOut
-  // var totalWorkInCase = 0;
-  // if(checkIn.getTime() === checkOut.getTime()){
-  //   totalWorkInCase =0
-  // }else{
-  // totalWorkInCase +=
-  // ((checkOut.getHours()+checkOut.getMinutes()/60) -
-  // (checkIn.getHours()+checkIn.getMinutes()/60));
-  // }
-  // totalWorkInDay += totalWorkInCase
-
-  //get OT and set Total work in day =8
-  // var overTime = 0
-  // if(totalWorkInDay >= 9){
-  //    overTime = totalWorkInDay -9
-  //   totalWorkInDay = 8
-  // }
-
-  //get hours leave and caculate salary in day
-  // var salary = 0
-  // Leave.findOne({userId: req.user._id})
-  // .then(leave => {
-  // salary = req.user.salaryScale * 3000000 + overTime*200000
-  // console.log('salary',salary)
-
-
-  var dayLeaveWithHour = {};
-
-  //find day leave
+  
   Leave.findOne({ userId: req.user._id })
+    .exec()
     .then((leave) => {
-      console.log('L:',leave)
+      var dayLeaveWithHour = {}
       if (leave.hourLeave.hours > 0) {
         //leave day and hours
-        dayLeaveWithHour.date = leave.hourLeave.date;
-        dayLeaveWithHour.hours = parseInt(leave.hourLeave.hours);
+        dayLeaveWithHour = {
+          date:leave.hourLeave.date,
+          hours: leave.hourLeave.hours
+        }
       }
-    })
-    .catch((err) => console.log(err));
+      console.log("L:", dayLeaveWithHour);
 
-
-  //get list time keeping in Month
-  var date = new Date(req.body.month);
+      ///////////////////////
+      var date = new Date(req.body.month);
   console.log("month:", date);
   var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
   var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
@@ -278,39 +241,75 @@ exports.postFindSalary = (req, res, next) => {
     .then((timeKeepingInMonth) => {
       var totalWorkInMonth = 0;
       var totalOverTimeInMonth = 0;
+      var totalLostInMonth = 0;
+
+      console.log('timeMonth', timeKeepingInMonth)
       for (let inDay of timeKeepingInMonth) {
         var totalWorkInDay = 0;
         var totalOverTimeInDay = 0;
+        var totalLostInDay = 0;
+        var timeWorkInShift = 0
         for (let shift of inDay.detail) {
-          var timeWorkInDay =
-            shift.checkOut.getHours() +
-            shift.checkOut.getMinutes() / 60 -
-            (shift.checkIn.getHours() + shift.checkIn.getMinutes() / 60);
-          
-            if ( Object.keys(dayLeaveWithHour).length !== 0 &&
-              dayLeaveWithHour.date.getTime() === inDay.date.getTime() &&
-              dayLeaveWithHour.hours > 0
-            ) {
+          //get checkIn -checkOut
+           timeWorkInShift +=
+            ((shift.checkOut.getHours() +
+            shift.checkOut.getMinutes() / 60) -
+            (shift.checkIn.getHours() + shift.checkIn.getMinutes() / 60));
 
-              //leave not empty and day leave == day and hours > 0
-              timeWorkInDay += dayLeaveWithHour.hours;
-            }
+            
+          }
+          //get hours leave
+          if (
+            Object.keys(dayLeaveWithHour).length !== 0 &&
+            dayLeaveWithHour.date.getTime() === inDay.date.getTime() &&
+            dayLeaveWithHour.hours > 0
+          ) {
+            //leave not empty and day leave == day and hours > 0
+            timeWorkInShift += dayLeaveWithHour.hours;
+            console.log('t',timeWorkInShift)
+          }
 
-            if (timeWorkInDay >= 8) {
-              totalWorkInDay += 8;
-              totalOverTimeInDay += timeWorkInDay - 8;
-            } else {
-              totalWorkInDay += timeWorkInDay;
-            }
-          ;
+          //now we have time work in a day and separate become totalWorkInDay totalOT and totalLost
+        if (timeWorkInShift >= 8) {
+          totalWorkInDay += 8;
+          totalOverTimeInDay += (timeWorkInShift - 8);
+          totalLostInDay += 0
+        } else {
+          totalWorkInDay += timeWorkInShift;
+          totalOverTimeInDay += 0
+          totalLostInDay += (8 - timeWorkInShift);
         }
-        totalWorkInMonth += totalWorkInDay;
-        totalOverTimeInMonth += totalOverTimeInDay;
-        console.log("ttDay:", totalWorkInMonth);
+        console.log('ttLINDAY:', totalLostInDay)
+        console.log('ttWINDAY:', totalWorkInDay)
+        console.log('overDAY:', totalOverTimeInDay)
       }
+      totalWorkInMonth += totalWorkInDay;
+      totalOverTimeInMonth += totalOverTimeInDay;
+
+      totalLostInMonth += totalLostInDay;
+      console.log("ttMonth:", totalWorkInMonth,totalLostInMonth,totalOverTimeInMonth);
+      const salary =
+        (req.user.salaryScale * 3000000) +
+        ((totalOverTimeInMonth - totalLostInMonth) * 200000);
+        console.log(req.user.salaryScale, totalOverTimeInMonth, totalLostInMonth)
+      console.log("salary", salary);
+      // res.render("user/searching", {
+      //   timeKeeping: timeKeeping,
+      //   dayLeaveWithHour: dayLeaveWithHour,
+      //   totalWorkInMonth: totalOverTimeInMonth,
+      //   totalOverTimeInMonth: totalOverTimeInMonth,
+      //   path: "/searching",
+      // });
     })
     .catch((err) => console.log(err));
 
+      ///////////////////////////
+    })
+    .catch((err) => console.log(err));
+  
+
+  //get list time keeping in Month
+  
   // })
   //   .then()
   //   .catch(err => console.log(err))
