@@ -199,24 +199,31 @@ exports.getSearching = (req, res, next) => {
         dayLeaveWithHour.date = leave.hourLeave.date;
         dayLeaveWithHour.hours = leave.hourLeave.hours;
       }
-    })
-    .catch((err) => console.log(err));
-  //find Time keeping and render
-  TimeKeeping.find({ userId: req.user._id })
-    .then((timeKeeping) => {
-      console.log("dWH", dayLeaveWithHour);
-      res.render("user/searching", {
-        timeKeeping: timeKeeping,
-        dayLeaveWithHour: dayLeaveWithHour,
-        path: "/searching",
-      });
+
+
+      //find Time keeping and render
+      TimeKeeping.find({ userId: req.user._id })
+        .then((timeKeeping) => {
+          console.log("dWH", dayLeaveWithHour);
+          res.render("user/searching", {
+            timeKeeping: timeKeeping,
+            dayLeaveWithHour: dayLeaveWithHour,
+            leave:leave,
+            name: req.user.name,
+            salaryScale: undefined,
+            overTime: undefined,
+            lostTime: undefined,
+            salary:undefined,
+            path: "/searching",
+    
+          });
+        })
+        .catch((err) => console.log(err));
     })
     .catch((err) => console.log(err));
 };
 
 exports.postFindSalary = (req, res, next) => {
-  
-
   
   Leave.findOne({ userId: req.user._id })
     .exec()
@@ -237,7 +244,8 @@ exports.postFindSalary = (req, res, next) => {
   var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
   var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
   console.log(firstDay, lastDay);
-  TimeKeeping.find({ date: { $gte: firstDay, $lte: lastDay } })
+  TimeKeeping.find({userId: req.user._id}).then((timeKeeping)=>{
+  TimeKeeping.find({ userId: req.user._id,date: { $gte: firstDay, $lte: lastDay } })
     .then((timeKeepingInMonth) => {
       var totalWorkInMonth = 0;
       var totalOverTimeInMonth = 0;
@@ -282,30 +290,38 @@ exports.postFindSalary = (req, res, next) => {
         console.log('ttLINDAY:', totalLostInDay)
         console.log('ttWINDAY:', totalWorkInDay)
         console.log('overDAY:', totalOverTimeInDay)
+        totalWorkInMonth += totalWorkInDay;
+        totalWorkInMonth = totalWorkInMonth
+        totalOverTimeInMonth += totalOverTimeInDay;
+        totalOverTimeInMonth = totalOverTimeInDay.toFixed(1);
+  
+        totalLostInMonth += totalLostInDay;
+        totalLostInMonth = totalLostInDay.toFixed(1);
       }
-      totalWorkInMonth += totalWorkInDay;
-      totalOverTimeInMonth += totalOverTimeInDay;
-
-      totalLostInMonth += totalLostInDay;
       console.log("ttMonth:", totalWorkInMonth,totalLostInMonth,totalOverTimeInMonth);
       const salary =
-        (req.user.salaryScale * 3000000) +
-        ((totalOverTimeInMonth - totalLostInMonth) * 200000);
+        ((req.user.salaryScale * 3000000) +
+        ((totalOverTimeInMonth - totalLostInMonth) * 200000)).toLocaleString('en-US');
         console.log(req.user.salaryScale, totalOverTimeInMonth, totalLostInMonth)
       console.log("salary", salary);
-      // res.render("user/searching", {
-      //   timeKeeping: timeKeeping,
-      //   dayLeaveWithHour: dayLeaveWithHour,
-      //   totalWorkInMonth: totalOverTimeInMonth,
-      //   totalOverTimeInMonth: totalOverTimeInMonth,
-      //   path: "/searching",
-      // });
+      res.render("user/searching", {
+        timeKeeping: timeKeeping,
+        dayLeaveWithHour: dayLeaveWithHour,
+        leave:leave,
+        name: req.user.name,
+        salaryScale: req.user.salaryScale,
+        overTime: totalOverTimeInMonth,
+        lostTime: totalLostInMonth,
+        salary:salary,
+        path: "/searching",
+      });
     })
     .catch((err) => console.log(err));
 
-      ///////////////////////////
     })
     .catch((err) => console.log(err));
+
+  }).catch(err => console.log(err))
   
 
   //get list time keeping in Month

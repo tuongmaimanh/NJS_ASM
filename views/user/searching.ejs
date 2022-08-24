@@ -58,11 +58,17 @@
   </article>
   <% } %>
 </div>
-
+<div class="m-3">
+  <h3>Leave</h3>
+  <p>Date: </p>
+<% leave.dayLeave.forEach(element => { %>
+  <h6>* <%= element.toLocaleDateString() %></h6>
+<% }); %>
+  </div>
 
 <div class="m-3">
   <div>
-    <h3 style="font-weight: bold; color: blue">Thông tin Lương</h3>
+    <h3 style="font-weight: bold;">Salary in Month</h3>
   </div>
   <form action="/find-salary" method="POST">
     <label for="time">Choose Month </label>
@@ -71,29 +77,27 @@
   </form>
 </div>
 
-<div class="<% %>">
+<div <%= salary ? 'show' : 'hidden'%> >
   <div class="card d-flex justify-content-center" style="width: auto">
     <div class="card-body">
-      <h5 class="card-title">Chi tiết lương tháng <% %></h5>
+      <h5 class="card-title">Salary detail <% %></h5>
       <table class="table">
         <thead>
           <tr>
-            <th scope="col">#</th>
-            <th scope="col">Họ và tên</th>
-            <th scope="col">Phòng ban</th>
-            <th scope="col">Ngày phép tồn</th>
-            <th scope="col">Hệ số lương</th>
-            <th scope="col">Lương</th>
+            <th scope="col">Name</th>
+            <th scope="col">Salary Scale</th>
+            <th scope="col">Over Time</th>
+            <th scope="col">Lost Time</th>
+            <th scope="col">Salary</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <th scope="row"><%= 1 %></th>
-            <td><%  %></td>
-            <td><%  %></td>
-            <td><%  %></td>
-            <td><%  %></td>
-            <td><%  %></td>
+            <td><%= name %></td>
+            <td><%= salaryScale %></td>
+            <td><%= overTime %></td>
+            <td><%= lostTime %></td>
+            <td><%= salary %> VND</td>
           </tr>
         </tbody>
       </table>
