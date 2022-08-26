@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const app = express()
 
+
 // use Bootstrap
 app.use('/css', express.static(path.join( 'node_modules/bootstrap/dist/css')))
 app.use('/js', express.static(path.join( 'node_modules/bootstrap/dist/js')))
@@ -9,6 +10,7 @@ app.use('/js', express.static(path.join( 'node_modules/jquery/dist')))
 app.set('view engine','ejs')
 
 const User = require('./models/user')
+
 
 
 

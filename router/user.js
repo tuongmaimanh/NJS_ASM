@@ -1,20 +1,28 @@
 const express = require('express')
 const router = express.Router()
-const userController = require('../controllers/user')
+const covidInfoController = require('../controllers/user/covidInfo')
+const timeKeepingController = require('../controllers/user/timeKeeping')
+const userInfoController = require('../controllers/user/userInfo')
+const searchingController = require('../controllers/user/searching')
 
 
-router.get('/',userController.getIndex)
-router.get('/checkIn',userController.getCheckIn)
-router.get('/checkOut',userController.getCheckOut)
-router.get('/leave',userController.getLeave)
+router.get('/',timeKeepingController.getIndex)
+router.get('/checkIn',timeKeepingController.getCheckIn)
+router.get('/checkOut',timeKeepingController.getCheckOut)
+router.get('/leave',timeKeepingController.getLeave)
 
-router.post('/leave',userController.postLeave)
+router.post('/leave',timeKeepingController.postLeave)
 
-router.get('/userInfo',userController.getUserInfo)
-router.post('/userInfo',userController.postUserInfo)
+router.get('/userInfo',userInfoController.getUserInfo)
+router.post('/userInfo',userInfoController.postUserInfo)
 
-router.get('/searching',userController.getSearching)
-router.post('/find-salary',userController.postFindSalary)
+router.get('/searching',searchingController.getSearching)
+router.post('/find-salary',searchingController.postFindSalary)
+
+router.get('/covidInfo',covidInfoController.getCovidInfo)
+router.post('/temperature',covidInfoController.postTemperature)
+router.post('/vaccine',covidInfoController.postVaccine)
+router.post('/infected',covidInfoController.postInfected)
 
 
 module.exports = router

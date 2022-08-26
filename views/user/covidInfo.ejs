@@ -1,0 +1,211 @@
+
+<%- include('../includes/header') %> 
+<h5 class="text-warning"><%= mess  %> </h5>
+<div class="text-center my-5">
+    <a class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal1">Register Temperature</a>
+    <a class="btn btn-warning btn-lg" data-toggle="modal" data-target="#myModal2">Register Vaccinated</a>
+    <a class="btn btn-danger btn-lg" data-toggle="modal" data-target="#myModal3">Register Infected with Covid</a>
+
+   
+<div class="container">
+  
+
+  <div class="modal" id="myModal1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <div class="modal-header">
+          <h4 class="modal-title">Register Temperature</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+          <form action="/temperature" method="POST">
+            <div class="form-group">
+                <label for="usr">Date:</label>
+                <br>
+                <input type="datetime-local" name="date">
+              </div>
+              <div class="form-group">
+                <label for="usr">Temperature(*C):</label>
+                <br>
+                <input type="number" name="temp">
+              </div>
+            <button type="submit" class="btn btn-dark">Submit</button>
+          </form>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+</div>
+  
+  <div class="modal" id="myModal2">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <div class="modal-header">
+          <h4 class="modal-title">Register Vaccinated</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <form action="/vaccine" method="POST">
+                <div class="form-group">
+                    <label for="usr">Date:</label>
+                    <br>
+                    <input type="date" name="date">
+                  </div>
+                  <div class="form-group">
+                    <label for="usr">Vaccine Name:</label>
+                    <br>
+                    <input type="text" name="vaccine">
+                  </div>
+                <button type="submit" class="btn btn-dark">Submit</button>
+              </form>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+</div>
+  
+  <div class="modal" id="myModal3">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <div class="modal-header">
+          <h4 class="modal-title">Register Infected with Covid</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <form action="/infected" method="POST">
+                <div class="form-group">
+                    <label for="usr">Date:</label>
+                    <br>
+                    <input type="date" name="date">
+                  </div>
+                  <div class="form-group">
+                    <label for="usr">Method Test:</label>
+                    <br>
+                    <div class="form-check">
+                        <label class="form-check-label" for="check1">
+                          <input type="checkbox" class="form-check-input" id="check1" name="infected" value="PCR" checked>PCR
+                        </label>
+                      </div>
+                      <div class="form-check">
+                        <label class="form-check-label" for="check2">
+                          <input type="checkbox" class="form-check-input" id="check2" name="infected" value="Rapid Test">Rapid Test
+                        </label>
+                      </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="usr">Note:</label>
+                    <br>
+                    <textarea type="text" name="note"></textarea>
+                  </div>
+                <button type="submit" class="btn btn-dark">Submit</button>
+              </form>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<div>
+  <div class="card d-flex justify-content-center" style="width: auto">
+    <div class="card-body">
+      <h5 class="card-title text-danger">Temperature</h5>
+      <% covidInfo.temperature.forEach(temp =>{ %>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Date:</th>
+              <th scope="col">Temperature</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><%= temp.date.toLocaleDateString() %></td>
+              <td><%= temp.temp %>*C</td>
+            </tr>
+          </tbody>
+        </table>
+        <% }) %> 
+      </div>
+    </div>
+</div>
+<br>
+<div>
+  <div class="card d-flex justify-content-center" style="width: auto">
+    <div class="card-body">
+      <h5 class="card-title text-danger">Vaccinated</h5>
+      <% covidInfo.vaccine.forEach(vaccine =>{ %>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Date:</th>
+              <th scope="col">Vaccine Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><%= vaccine.date.toLocaleDateString() %></td>
+              <td><%= vaccine.vaccine %></td>
+            </tr>
+          </tbody>
+        </table>
+        <% }) %> 
+      </div>
+    </div>
+</div>
+<br>
+<div>
+  <div class="card d-flex justify-content-center" style="width: auto">
+    <div class="card-body">
+      <h5 class="card-title text-danger">Infected with Covid</h5>
+      <% covidInfo.infected.forEach(infected =>{ %>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Date:</th>
+              <th scope="col">Method Test</th>
+              <th scope="col">Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><%= infected.date.toLocaleDateString() %></td>
+              <td><%= infected.methodTest %></td>
+              <td><%= infected.note %></td>
+            </tr>
+          </tbody>
+        </table>
+        <% }) %> 
+      </div>
+    </div>
+</div>
+<br>
+
+
+  
+<%- include('../includes/footer')  %> 
+    
+

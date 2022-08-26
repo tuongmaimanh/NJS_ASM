@@ -10,15 +10,24 @@ const covidInfoSchema = new Schema({
     date:{
         type : Date, default: Date.now 
     },
+    temperature:[
+        {
+        date: Date,
+        temp:Number,
+        }
+    ]
+    ,
     vaccine: [
         {
-            vaccineName: String,
+            vaccine: String,
             date: Date
         }
     ],
-    positive:[
+    infected:[
         {
-            date:Date
+            date:Date,
+            methodTest:Array,
+            note:String
         }
     ]
 })
