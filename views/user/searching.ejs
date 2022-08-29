@@ -92,12 +92,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
+          <>
             <td><%= name %></td>
             <td><%= salaryScale %></td>
-            <td><%= overTime %></td>
-            <td><%= lostTime %></td>
+          <% if(salary) {%>
+            <td><%= overTime.toFixed(2) %></td>
+            <td><%= lostTime.toFixed(2) %></td>
             <td><%= salary %> VND</td>
+            <% }%>
           </tr>
         </tbody>
       </table>
