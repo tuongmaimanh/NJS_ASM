@@ -1,5 +1,30 @@
 <%- include('../includes/header') %>
-<div class="text-center my-5">
-  <% if(mess){ %> <%= mess %> <% }else{ %> check in <% } %>
+<div class="my-5">
+  <% if(mess){ %>
+    <h5>Name: <%= name  %> </h5>
+    <h5 class="text-warning">
+      <%= mess %> 
+    </h5>
+     
+     <% }else{ %>
+    <h5>Name: <%= name  %> </h5>
+    <h5>Work Place: </h5>
+
+     <form action="/checkIn" method="POST">
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="workplace" id="exampleRadios1" value="Company" checked>
+        <div class="form-check-label" for="exampleRadios1">
+          Company
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="workplace" id="exampleRadios2" value="At Home">
+        <label class="form-check-label" for="exampleRadios2">
+          At Home
+        </label>
+      </div>
+      <button class="btn btn-primary" type="submit">Submit</button>
+     </form> 
+     
+     <% } %>
 </div>
 <%- include('../includes/footer') %>

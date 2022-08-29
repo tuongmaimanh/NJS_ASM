@@ -13,7 +13,6 @@ const User = require('./models/user')
 
 
 
-
 //use bodyParser
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));

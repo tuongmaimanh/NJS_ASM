@@ -8,6 +8,7 @@ const searchingController = require('../controllers/user/searching')
 
 router.get('/',timeKeepingController.getIndex)
 router.get('/checkIn',timeKeepingController.getCheckIn)
+router.post('/checkIn',timeKeepingController.postCheckIn)
 router.get('/checkOut',timeKeepingController.getCheckOut)
 router.get('/leave',timeKeepingController.getLeave)
 

@@ -1,7 +1,12 @@
 
 <%- include('../includes/header') %> 
 <div class="text-center my-5">
-    <% if(mess){ %> <%= mess %> <% }else{ %> check in <% } %>
+    <% if(mess){ %> 
+      <h5>Name: <%= name  %> </h5>
+    <h5 class="text-warning">
+      <%= mess %> 
+    </h5>
+      <% } %> 
   </div>
  <%- include('../includes/footer')  %> 
     

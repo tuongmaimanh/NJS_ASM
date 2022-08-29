@@ -3,9 +3,15 @@ const User = require("../../models/user");
 const Leave = require("../../models/leave");
 
 exports.getIndex = (req, res, next) => {
-    res.render("user/index", { path: "/" });
+    res.render("user/index", { mess:undefined,path: "/" });
   };
   exports.getCheckIn = (req, res, next) => {
+    res.render("user/checkIn", { mess: undefined,name:req.user.name, path: "/checkIn" });
+
+    
+  };
+
+  exports.postCheckIn = (req,res,next) =>{
     //create new time keeping in day or new shift work
     if (global.isCheckout || global.isCheckout == undefined) {
       //Check user had check time in day?
@@ -38,7 +44,7 @@ exports.getIndex = (req, res, next) => {
                 {
                   checkIn: date,
                   checkOut: new Date(date),
-                  workplace: "Company",
+                  workplace: req.body.workplace,
                 },
               ],
             });
@@ -47,18 +53,17 @@ exports.getIndex = (req, res, next) => {
         })
         .catch((err) => console.log(err));
   
+        res.render("user/checkIn", { mess: `You are check in at: ${new Date().toLocaleTimeString()}`,name:req.user.name,isWorking: true, path: "/checkIn" });
       global.isCheckout = false;
-      res.render("user/checkIn", { mess: "Check In", path: "/checkIn" });
+
     } else {
-      //     TimeKeeping.find({userId: req.user._id,date: new Date().toLocaleDateString()})
-      // .then(timeKeepingInday => {
-      //     timeKeepingInday[timeKeepingInday.length-1].checkOut = new Date()
-      // })
-      // .catch(err => console.log(err))
-  
-      res.render("user/checkIn", { mess: "Please Check Out", path: "/checkIn" });
+      res.render("user/checkIn", { mess: "Please Check Out",name:req.user.name, path: "/checkIn" });
     }
-  };
+  }
+
+  // exports.getCheckOut = (req, res, next) => {
+
+  // }
   exports.getCheckOut = (req, res, next) => {
     console.log("isCHECKOUT", global.isCheckout);
   
@@ -68,6 +73,8 @@ exports.getIndex = (req, res, next) => {
         date: new Date().toLocaleDateString(),
       })
         .then((timeKeepingInday) => {
+          //set isCheckout return 'true'
+          global.isCheckout = true;
           console.log(timeKeepingInday);
           //get the last check time in day of index
           const nowShiftIndex = timeKeepingInday.detail.length - 1;
@@ -77,13 +84,12 @@ exports.getIndex = (req, res, next) => {
   
           timeKeepingInday.save();
   
-          //set isCheckout return 'true'
-          global.isCheckout = true;
-          res.render("user/checkOut", { mess: "Check Out", path: "/checkOut" });
+          
+          res.render("user/checkOut", { mess: `You Check Out Successful at: ${new Date().toLocaleTimeString()}`,name:req.user.name, path: "/checkOut" });
         })
         .catch((err) => console.log(err));
     } else {
-      res.render("user/checkOut", { mess: "Please Check In", path: "/checkOut" });
+      res.render("user/checkOut", { mess: "Please Check In",name:req.user.name, path: "/checkOut" });
     }
   };
   exports.getLeave = (req, res, next) => {
