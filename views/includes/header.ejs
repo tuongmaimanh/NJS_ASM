@@ -34,6 +34,16 @@
                 <a class="nav-link <%= path == '/covidInfo'? 'active':''  %>" href="covidInfo">Covid Information</a>
               </li>
             </ul>
+            <% if(isAuth){ %> 
+            <ul>
+              <li class="nav-item">
+                <form action="/logout" method="POST">
+                    <button class="main-header__item" type="submit">Logout</button>
+                </form>
+              </li>
+              
+            </ul>
+            <% } %> 
           </div>
         </div>
       </nav>
