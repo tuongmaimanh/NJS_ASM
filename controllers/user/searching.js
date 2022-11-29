@@ -2,12 +2,25 @@ const TimeKeeping = require("../../models/timeKeeping");
 const User = require("../../models/user");
 const Leave = require("../../models/leave");
 
+const ITEMS_PER_PAGE = 1;
+
 exports.getSearching = (req, res, next) => {
+  const page = +req.query.page || 1;
+  let totalItems;
+
   var dayLeaveWithHour = {};
+  var date = new Date();
+  var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+  var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
   //find day leave
-  Leave.findOne({ userId: req.user._id })
+  console.log(req.user.id);
+  Leave.findOne({
+    userId: req.user._id,
+    date: { $gte: firstDay, $lte: lastDay },
+  })
     .then((leave) => {
+      console.log("leaveeee", leave);
       if (leave.hourLeave.hours > 0) {
         //leave day and hours
         dayLeaveWithHour.date = leave.hourLeave.date;
@@ -16,8 +29,14 @@ exports.getSearching = (req, res, next) => {
 
       //find Time keeping and render
       TimeKeeping.find({ userId: req.user._id })
+        .countDocuments()
+        .then((numLeave) => {
+          totalItems = numLeave;
+          return TimeKeeping.find({ userId: req.user._id })
+            .skip((page - 1) * ITEMS_PER_PAGE)
+            .limit(ITEMS_PER_PAGE);
+        })
         .then((timeKeeping) => {
-          console.log("dWH", dayLeaveWithHour);
           res.render("user/searching", {
             timeKeeping: timeKeeping,
             dayLeaveWithHour: dayLeaveWithHour,
@@ -28,6 +47,14 @@ exports.getSearching = (req, res, next) => {
             lostTime: undefined,
             salary: undefined,
             path: "/searching",
+            isAuth: req.session.isLoggedIn,
+
+            currentPage: page,
+            hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+            hasPreviousPage: page > 1,
+            nextPage: page + 1,
+            previousPage: page - 1,
+            lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
           });
         })
         .catch((err) => console.log(err));
@@ -36,7 +63,14 @@ exports.getSearching = (req, res, next) => {
 };
 
 exports.postFindSalary = (req, res, next) => {
-  Leave.findOne({ userId: req.user._id })
+  var date = new Date();
+  var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+  var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+  Leave.findOne({
+    userId: req.user._id,
+    date: { $gte: firstDay, $lte: lastDay },
+  })
     .exec()
     .then((leave) => {
       var dayLeaveWithHour = {};
@@ -51,10 +85,8 @@ exports.postFindSalary = (req, res, next) => {
 
       ///////////////////////
       var date = new Date(req.body.month);
-      console.log("month:", date);
       var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
       var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-      console.log(firstDay, lastDay);
       TimeKeeping.find({ userId: req.user._id })
         .then((timeKeeping) => {
           TimeKeeping.find({
@@ -102,7 +134,6 @@ exports.postFindSalary = (req, res, next) => {
                   totalLostInDay += 8 - timeWorkInShift;
                 }
 
-              
                 console.log("ttLINDAY:", totalLostInDay);
                 console.log("ttWINDAY:", totalWorkInDay);
                 console.log("overDAY:", totalOverTimeInDay);
@@ -113,8 +144,7 @@ exports.postFindSalary = (req, res, next) => {
 
                 totalLostInMonth += totalLostInDay;
                 // totalLostInMonth = totalLostInDay.toFixed(1);
-              
-            }
+              }
               console.log(
                 "ttMonth:",
                 totalWorkInMonth,
@@ -141,6 +171,13 @@ exports.postFindSalary = (req, res, next) => {
                 lostTime: totalLostInMonth,
                 salary: salary,
                 path: "/searching",
+                isAuth: req.session.isLoggedIn,
+                currentPage: 1,
+                nextPage:2,
+                previousPage:0,
+                lastPage:2,
+                hasNextPage: true,
+            hasPreviousPage: true,
               });
             })
             .catch((err) => console.log(err));

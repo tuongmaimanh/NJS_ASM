@@ -58,12 +58,20 @@
   </article>
   <% } %>
 </div>
+
+<%- include('../includes/pagination.ejs', {currentPage: currentPage, nextPage: nextPage, previousPage: previousPage, lastPage: lastPage, hasNextPage: hasNextPage, hasPreviousPage: hasPreviousPage}) %>
+
+
+
 <div class="m-3">
   <h3>Leave</h3>
   <p>Date: </p>
 <% leave.dayLeave.forEach(element => { %>
   <h6>* <%= element.toLocaleDateString() %></h6>
 <% }); %>
+
+<p>Leave with hours:</p>
+<h6><%= dayLeaveWithHour.date.toLocaleDateString() %>: <%=dayLeaveWithHour.hours %>h</h6>
   </div>
 
 <div class="m-3">

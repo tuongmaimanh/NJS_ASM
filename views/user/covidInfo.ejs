@@ -130,8 +130,18 @@
 </div>
 
 <div>
+  <% if(covidInfoStaff.length>0 ){ %>  
+    <h5>Danh sách nhân viên quản lý</h5>
+    <% covidInfoStaff.forEach(i=>{ %>
+      <a href="/covidInfoStaff/<%= i.id %> ">*<%= i.name  %> </a>
+      <br>
+    <%})%> 
+    <% } %> 
+    <hr>
   <div class="card d-flex justify-content-center" style="width: auto">
     <div class="card-body">
+      <% if(covidInfo){%>
+        
       <h5 class="card-title text-danger">Temperature</h5>
       <% covidInfo.temperature.forEach(temp =>{ %>
         <table class="table">
@@ -202,6 +212,9 @@
       </div>
     </div>
 </div>
+<% }else{%>
+  <h4>No Infomation covid</h4> 
+  <% } %> 
 <br>
 
 
